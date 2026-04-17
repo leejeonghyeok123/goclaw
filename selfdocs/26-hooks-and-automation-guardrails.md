@@ -1,5 +1,7 @@
 # 26. Hooks and Automation Guardrails
 
+> **Selfdocs 공통 전제:** **Linux** 호스트·**Docker Compose**(`make up` 등)로 게이트웨이를 띄우는 것을 기본으로 한다. 초기 기동·포트·헬스: [03-initial-setup-and-first-run](./03-initial-setup-and-first-run.md). 테넌트·API 키·요청 스코프: [22-tenant-vs-account-explained](./22-tenant-vs-account-explained.md).
+
 ## 대상 독자
 
 중급~고급 운영자/개발자 (자동화/품질 게이트 설계 담당)

@@ -1,5 +1,7 @@
 # 05. Runtime Entrypoints and Wiring
 
+> **Selfdocs 공통 전제:** **Linux** 호스트·**Docker Compose**(`make up` 등)로 게이트웨이를 띄우는 것을 기본으로 한다. 초기 기동·포트·헬스: [03-initial-setup-and-first-run](./03-initial-setup-and-first-run.md). 테넌트·API 키·요청 스코프: [22-tenant-vs-account-explained](./22-tenant-vs-account-explained.md).
+
 ## 목적
 
 GoClaw가 실제로 어떤 순서로 구성요소를 조립해 실행되는지 이해합니다.

@@ -1,5 +1,7 @@
 # 17. Customization Recipes
 
+> **Selfdocs 공통 전제:** **Linux** 호스트·**Docker Compose**(`make up` 등)로 게이트웨이를 띄우는 것을 기본으로 한다. 초기 기동·포트·헬스: [03-initial-setup-and-first-run](./03-initial-setup-and-first-run.md). 테넌트·API 키·요청 스코프: [22-tenant-vs-account-explained](./22-tenant-vs-account-explained.md).
+
 ## 목적
 
 실무에서 자주 요구되는 커스터마이징을 "어디를 어떻게 수정할지" 레시피로 제공합니다.

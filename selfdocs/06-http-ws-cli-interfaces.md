@@ -1,5 +1,7 @@
 # 06. HTTP / WS / CLI Interfaces
 
+> **Selfdocs 공통 전제:** **Linux** 호스트·**Docker Compose**(`make up` 등)로 게이트웨이를 띄우는 것을 기본으로 한다. 초기 기동·포트·헬스: [03-initial-setup-and-first-run](./03-initial-setup-and-first-run.md). 테넌트·API 키·요청 스코프: [22-tenant-vs-account-explained](./22-tenant-vs-account-explained.md).
+
 ## 목적
 
 GoClaw의 3개 인터페이스를 목적별로 올바르게 사용하는 방법을 익힙니다.
@@ -19,6 +21,7 @@ GoClaw의 3개 인터페이스를 목적별로 올바르게 사용하는 방법�
 ## 상세 사용 절차
 
 1. HTTP
+   - 기본 베이스 URL(Docker Compose): `http://localhost:18790` (호스트 포트는 `GOCLAW_PORT` 로 변경 가능, `docker-compose.yml` 참고)
    - `/v1/openapi.json`으로 계약 확인
    - 예: `/v1/chat/completions`, `/v1/providers`, `/v1/skills`
 2. WS

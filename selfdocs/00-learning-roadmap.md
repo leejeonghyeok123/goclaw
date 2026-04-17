@@ -1,20 +1,22 @@
 # 00. Learning Roadmap
 
+> **Selfdocs 공통 전제:** **Linux** 호스트·**Docker Compose**(`make up` 등)로 게이트웨이를 띄우는 것을 기본으로 한다. 초기 기동·포트·헬스: [03-initial-setup-and-first-run](./03-initial-setup-and-first-run.md). 테넌트·API 키·요청 스코프: [22-tenant-vs-account-explained](./22-tenant-vs-account-explained.md).
+
 ## 목적
 
 GoClaw 학습 경로를 "실행 가능한 순서"로 제시합니다.
 
 ## 선행지식
 
-- Go 기본 문법
-- Docker/PostgreSQL 기초
+- Docker / Docker Compose 기초(기본 전제: **Linux + Compose**)
 - HTTP/WS API 개념
+- 소스까지 수정할 때: Go 기본 문법, PostgreSQL 기초
 
 ## 단계별 로드맵
 
 1. 제품 개요 파악: `README.md`, 공식 사이트, 공식 문서
-2. 개발 환경 준비: Go/DB/pnpm/Wails 설치
-3. 첫 실행: `goclaw onboard` 및 초기 연결 확인
+2. 실행 환경 준비: Linux 에서 Docker + (선택) Make
+3. 첫 실행: `prepare-env.sh` → `make up` 및 `/health` 확인 ([03](./03-initial-setup-and-first-run.md))
 4. 구조 파악: `cmd`, `internal`, `pkg`, `ui`, `migrations`, `tests`
 5. 런타임 이해: `main.go` -> `cmd/root.go` -> `cmd/gateway.go`
 6. 외부 인터페이스 이해: HTTP/WS/CLI
@@ -32,7 +34,7 @@ GoClaw 학습 경로를 "실행 가능한 순서"로 제시합니다.
 ## 실수 방지 체크리스트
 
 - 문서 순서를 건너뛰지 않기
-- 실행 명령은 현재 OS에 맞춰 변환해서 사용하기
+- selfdocs 기본 전제는 Linux + Docker 이므로, 다른 OS는 공식 `README.md` 와 병행
 - DB 스키마 변경 시 PG/SQLite 동시 고려
 
 ## 다음 문서

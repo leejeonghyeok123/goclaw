@@ -1,5 +1,7 @@
 # 12. Memory, Knowledge Graph, Vault
 
+> **Selfdocs 공통 전제:** **Linux** 호스트·**Docker Compose**(`make up` 등)로 게이트웨이를 띄우는 것을 기본으로 한다. 초기 기동·포트·헬스: [03-initial-setup-and-first-run](./03-initial-setup-and-first-run.md). 테넌트·API 키·요청 스코프: [22-tenant-vs-account-explained](./22-tenant-vs-account-explained.md).
+
 ## 대상 독자
 
 중급(입문자는 먼저 `99-glossary-for-beginners.md`, `21-sessions-and-context-for-beginners.md` 권장)

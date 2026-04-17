@@ -2,6 +2,14 @@
 
 이 폴더는 GoClaw를 "아무것도 모르는 상태"에서 "실무 운영/개발 가능한 전문가"까지 도달시키는 순차 학습 문서 모음입니다.
 
+## 공통 실행 전제 (모든 selfdocs)
+
+- **Linux** 호스트에서 **Docker Compose**로 게이트웨이·Postgres 를 띄우는 흐름을 기본으로 한다(`Makefile` 의 `make up` 등).
+- 초기 설치·`.env`·헬스·대시보드 URL: [03-initial-setup-and-first-run](./03-initial-setup-and-first-run.md).
+- 테넌트 생성·tenant-bound API 키·`X-GoClaw-User-Id`: [22-tenant-vs-account-explained](./22-tenant-vs-account-explained.md).
+- 인증·RBAC·스코프 문자열: [24-auth-api-keys-rbac-operations](./24-auth-api-keys-rbac-operations.md).
+- **Desktop Lite**(SQLite·Wails)와 **Windows** 전용 설치는 [14-desktop-lite-guide](./14-desktop-lite-guide.md) 처럼 예외 문서에만 적어 두었다.
+
 ## 난이도 표기
 
 - `[B]` Beginner (입문)
@@ -43,5 +51,5 @@
 ## 작성 원칙
 
 - 코드 경로 기반 사실만 기록
-- Windows PowerShell 기준 우선, 필요 시 Linux/macOS 병기
+- **Linux + Docker Compose** 를 기본 실행 전제로 한다 (호스트 네이티브 빌드·Windows·macOS 는 `README.md` 및 예외 문서와 병행)
 - 각 문서에 적용 예시와 운영 활용 전략 포함

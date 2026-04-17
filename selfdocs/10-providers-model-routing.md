@@ -1,5 +1,7 @@
 # 10. Providers and Model Routing
 
+> **Selfdocs 공통 전제:** **Linux** 호스트·**Docker Compose**(`make up` 등)로 게이트웨이를 띄우는 것을 기본으로 한다. 초기 기동·포트·헬스: [03-initial-setup-and-first-run](./03-initial-setup-and-first-run.md). 테넌트·API 키·요청 스코프: [22-tenant-vs-account-explained](./22-tenant-vs-account-explained.md).
+
 ## 목적
 
 다중 LLM 공급자 구성을 안정적으로 운영하고 모델 라우팅을 제어합니다.
@@ -19,7 +21,7 @@
 ## 사용 상세 절차
 
 1. 프로바이더 등록
-   - UI 또는 HTTP `/v1/providers` 또는 CLI
+   - UI 또는 HTTP `/v1/providers`(베이스 URL 예: `http://localhost:18790`) 또는 CLI
 2. 연결 검증
    - `/v1/providers/{id}/verify`
 3. 모델 선택/기본값 설정

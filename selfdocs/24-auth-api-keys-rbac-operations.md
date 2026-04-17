@@ -1,5 +1,7 @@
 # 24. Auth, API Keys, RBAC Operations
 
+> **Selfdocs 공통 전제:** **Linux** 호스트·**Docker Compose**(`make up` 등)로 게이트웨이를 띄우는 것을 기본으로 한다. 초기 기동·포트·헬스: [03-initial-setup-and-first-run](./03-initial-setup-and-first-run.md). 테넌트 생성·tenant-bound 키·curl 예시: [22-tenant-vs-account-explained](./22-tenant-vs-account-explained.md).
+
 ## 대상 독자
 
 초급~중급 운영자 (부서 배포/권한 설계 담당)
@@ -48,6 +50,21 @@ GoClaw 인증/권한 구조를 이해하고, 안전하게 운영할 수 있게 �
 - admin: 플랫폼 운영자만
 - operator: 부서 리더/자동화 담당
 - viewer: 조회 중심 사용자
+
+## API 키에 넣는 scope 문자열 (코드 기준)
+
+`internal/permissions/policy.go` 에 정의된 값만 유효하다(`ValidScope`).
+
+| scope | 역할 매핑에 쓰일 때 요약 (`RoleFromScopes`) |
+|--------|---------------------------------------------|
+| `operator.admin` | Admin 역할 (예: `POST /v1/api-keys` 같은 관리 HTTP 는 미들웨어상 Admin 이상 필요) |
+| `operator.read` | Viewer 쪽으로 기여 |
+| `operator.write` | Operator 역할로 기여 |
+| `operator.approvals` | Operator 역할로 기여 |
+| `operator.pairing` | Operator 역할로 기여 |
+| `operator.provision` | `RoleFromScopes` 만 보면 상위 권한으로 자동 승격되지는 않을 수 있다. 일부 게이트웨이 메서드가 이 스코프를 요구한다(`MethodScopes`, `internal/permissions/policy.go`) |
+
+실제 발급 JSON 예: `"scopes": ["operator.read", "operator.write"]` — 테넌트·키 발급 절차는 [22-tenant-vs-account-explained](./22-tenant-vs-account-explained.md).
 
 운영 원칙:
 

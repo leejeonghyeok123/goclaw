@@ -1,5 +1,7 @@
 # 13. Web UI Operator Guide
 
+> **Selfdocs 공통 전제:** **Linux** 호스트·**Docker Compose**(`make up` 등)로 게이트웨이를 띄우는 것을 기본으로 한다. 초기 기동·포트·헬스: [03-initial-setup-and-first-run](./03-initial-setup-and-first-run.md). 테넌트·API 키·요청 스코프: [22-tenant-vs-account-explained](./22-tenant-vs-account-explained.md).
+
 ## 목적
 
 운영자가 웹 대시보드에서 주요 기능을 실무적으로 다루는 방법을 익힙니다.
@@ -21,6 +23,7 @@
 ## 사용 상세 절차
 
 1. 관리자 로그인/토큰 확보
+   - Docker 기본: 브라우저에서 `http://localhost:18790` (호스트 포트는 `GOCLAW_PORT`, `docker-compose.yml` 참고). 게이트웨이 토큰은 `.env` 의 `GOCLAW_GATEWAY_TOKEN` 등.
 2. Providers 설정
 3. Agent 생성 및 Tool 정책 확인
 4. Team/Task/Delegation 흐름 점검

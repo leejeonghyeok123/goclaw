@@ -1,5 +1,7 @@
 # 14. Desktop Lite Guide
 
+> **Selfdocs 공통 전제:** 이 문서만 **Desktop Lite**(SQLite·Wails) 예외 경로다. **Linux 서버 + Docker** 표준 게이트웨이는 [03-initial-setup-and-first-run](./03-initial-setup-and-first-run.md), 테넌트·키는 [22-tenant-vs-account-explained](./22-tenant-vs-account-explained.md).
+
 ## 목적
 
 인프라 없이 로컬에서 GoClaw Lite를 실행/개발/배포하는 방법을 정리합니다.
@@ -14,7 +16,8 @@
 ## 사용 상세 절차
 
 1. 설치
-   - PowerShell: `irm https://raw.githubusercontent.com/nextlevelbuilder/goclaw/main/scripts/install-lite.ps1 | iex`
+   - Linux/macOS: `curl -fsSL https://raw.githubusercontent.com/nextlevelbuilder/goclaw/main/scripts/install-lite.sh | bash`
+   - Windows PowerShell: `irm https://raw.githubusercontent.com/nextlevelbuilder/goclaw/main/scripts/install-lite.ps1 | iex`
 2. 개발 실행
    - `make desktop-dev`
 3. 빌드

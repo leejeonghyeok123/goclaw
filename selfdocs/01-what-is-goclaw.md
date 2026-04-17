@@ -1,5 +1,7 @@
 # 01. What is GoClaw
 
+> **Selfdocs 공통 전제:** **Linux** 호스트·**Docker Compose**(`make up` 등)로 게이트웨이를 띄우는 것을 기본으로 한다. 초기 기동·포트·헬스: [03-initial-setup-and-first-run](./03-initial-setup-and-first-run.md). 테넌트·API 키·요청 스코프: [22-tenant-vs-account-explained](./22-tenant-vs-account-explained.md).
+
 ## 목적
 
 GoClaw의 정체, 문제 해결 범위, 핵심 가치를 정확히 이해합니다.
@@ -14,6 +16,8 @@ GoClaw는 Go 기반 멀티테넌트 AI Agent Gateway/Platform입니다.
 - Tool 실행 정책, 보안, 멀티테넌트 격리
 - Memory/KG/Vault 기반 장기 지식화
 - Desktop Lite(로컬 SQLite) 지원
+
+selfdocs 에서 **표준 실행 형태**는 Linux 상의 **Docker Compose 게이트웨이(Postgres)** 이고, Desktop Lite 는 별도 예외 경로([14](./14-desktop-lite-guide.md))로 본다.
 
 ## 코드 기준 위치
 

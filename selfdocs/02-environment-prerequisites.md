@@ -1,51 +1,55 @@
 # 02. Environment Prerequisites
 
+> **Selfdocs 공통 전제:** **Linux** 호스트·**Docker Compose**(`make up` 등)로 게이트웨이를 띄우는 것을 기본으로 한다. 초기 기동·포트·헬스: [03-initial-setup-and-first-run](./03-initial-setup-and-first-run.md). 테넌트·API 키·요청 스코프: [22-tenant-vs-account-explained](./22-tenant-vs-account-explained.md).
+
 ## 목적
 
-실행 전 필수 도구/버전을 명확히 맞춰 실패를 예방합니다.
+실행 전 필수 도구/버전을 명확히 맞춰 실패를 예방합니다. 이 저장소의 selfdocs 기본 전제는 **Linux 호스트 + Docker Compose** 입니다.
 
-## 필수 구성요소
+## 필수 구성요소 (Docker 경로)
 
-- Go 1.26+
-- PostgreSQL 18 + pgvector (Standard 서버 모드)
-- Docker / Docker Compose (권장)
-- pnpm (웹/데스크탑 프론트엔드)
-- Wails CLI (Desktop Lite 개발/빌드)
+- **Docker Engine** + **Docker Compose v2** (`docker compose`)
+- (선택) **GNU Make** — `Makefile` 의 `make up` 등을 쓰려면 필요
+
+컨테이너 안에서 빌드되므로, **호스트에 Go를 설치하지 않아도** Docker 만으로 백엔드를 띄울 수 있다.
+
+## 소스 개발·테스트까지 할 때 (추가)
+
+- **Go** 1.26+ (버전은 `README.md` / CI 와 맞출 것)
+- **pnpm** — 웹 UI (`ui/web`) 개발 시
+- **Wails CLI** — Desktop Lite 빌드/개발 시
 
 ## 코드/설정 위치
 
 - 실행 지침: `README.md`
-- 자동화 명령: `Makefile`
-- CI 기준 버전: `.github/workflows/ci.yaml`
-- 데스크탑 빌드: `.github/workflows/release-desktop.yaml`
+- Compose / `up`: `Makefile`, `docker-compose.yml`, `docker-compose.postgres.yml`
+- 환경 예시: `.env.example`, `prepare-env.sh`
+- CI 기준: `.github/workflows/ci.yaml`
 
-## 상세 준비 절차 (Windows PowerShell 우선)
+## Linux에서 환경 확인 (bash)
 
-1. Go 설치 확인
-   - `go version`
-2. Docker 설치 확인
-   - `docker --version`
-   - `docker compose version`
-3. pnpm 설치 확인
-   - `pnpm --version`
-4. (옵션) Wails 설치
-   - `go install github.com/wailsapp/wails/v2/cmd/wails@latest`
+```bash
+docker --version
+docker compose version
+command -v make && make --version
+# 소스 개발 시에만:
+go version 2>/dev/null || true
+pnpm --version 2>/dev/null || true
+```
 
 ## 적용 예시
 
-- 백엔드만 먼저 검증:
-  - Go + PostgreSQL만 준비 후 `make build`, `./goclaw onboard`
-- 데스크탑만 검증:
-  - Wails + pnpm 준비 후 `make desktop-dev`
+- **백엔드만 Docker 로 검증**: 위 Docker 항목만 갖춘 뒤 [03-initial-setup-and-first-run](./03-initial-setup-and-first-run.md) 진행
+- **UI/데스크톱까지**: pnpm / Wails 추가 설치 후 저장소 루트의 `Makefile` 타깃 사용
 
 ## 활용 전략
 
-- 팀 공용 온보딩 문서에 "명령 1줄 검증" 블록을 넣어 환경 이슈를 초기에 차단
+- 팀 온보딩 문서 맨 위에 “`docker compose version` 한 줄” 검증 블록을 두면 환경 이슈를 빨리 걸러낸다.
 
 ## 체크리스트
 
-- `go`, `docker`, `pnpm` 버전 명령이 모두 동작
-- Standard/Lite 중 현재 목표 모드가 결정됨
+- [ ] `docker` / `docker compose` 명령이 동작한다
+- [ ] 지금 목표가 **Docker 만** 인지 **로컬 Go 빌드** 까지 인지 정했다
 
 ## 다음 문서
 

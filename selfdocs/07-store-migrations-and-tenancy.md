@@ -1,5 +1,7 @@
 # 07. Store, Migrations, and Tenancy
 
+> **Selfdocs 공통 전제:** **Linux** 호스트·**Docker Compose**(`make up` 등)로 게이트웨이를 띄우는 것을 기본으로 한다. 초기 기동·포트·헬스: [03-initial-setup-and-first-run](./03-initial-setup-and-first-run.md). 테넌트·API 키·요청 스코프: [22-tenant-vs-account-explained](./22-tenant-vs-account-explained.md).
+
 ## 목적
 
 데이터 계층 변경 시 장애/격리 이슈를 방지합니다.
@@ -14,7 +16,7 @@
 ## 중요 원칙
 
 - PG와 SQLite는 별도 마이그레이션 체계
-- 멀티테넌트 스코프를 항상 컨텍스트와 SQL 양쪽에서 보장
+- 멀티테넌트 스코프를 항상 컨텍스트와 SQL 양쪽에서 보장 (테넌트 행·키·HTTP 헤더 흐름은 [22-tenant-vs-account-explained](./22-tenant-vs-account-explained.md))
 - 쿼리는 파라미터 바인딩만 사용
 
 ## 상세 작업 절차

@@ -1,5 +1,7 @@
 # 21. Sessions and Context (Beginner Guide)
 
+> **Selfdocs 공통 전제:** **Linux** 호스트·**Docker Compose**(`make up` 등)로 게이트웨이를 띄우는 것을 기본으로 한다. 초기 기동·포트·헬스: [03-initial-setup-and-first-run](./03-initial-setup-and-first-run.md). 테넌트·API 키·요청 스코프: [22-tenant-vs-account-explained](./22-tenant-vs-account-explained.md).
+
 ## 목적
 
 세션과 컨텍스트를 처음 보는 사람도 "대화가 왜 이어지고, 왜 가끔 잊어버리는지" 이해하도록 정리합니다.
