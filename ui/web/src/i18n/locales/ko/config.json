@@ -70,6 +70,8 @@
   "gateway.maxMessageCharsTip": "인바운드 메시지당 허용되는 최대 문자 수입니다. 이 한도를 초과하는 메시지는 거부됩니다.",
   "gateway.rateLimitRpm": "속도 제한 (RPM)",
   "gateway.rateLimitRpmTip": "사용자당 분당 최대 요청 수입니다. 속도 제한을 비활성화하려면 0으로 설정하세요.",
+  "gateway.rateLimitBurst": "한 번에 허용하는 횟수",
+  "gateway.rateLimitBurstTip": "분당 한도로 다시 채워지기 전에 사용자 한 명이 연속으로 보낼 수 있는 요청 수입니다. 기본값은 5입니다.",
   "gateway.inboundDebounceMs": "인바운드 디바운스 (ms)",
   "gateway.inboundDebounceMsTip": "새 메시지를 처리하기 전 대기할 밀리초입니다. 빠른 후속 메시지를 통합하기 위해 사용합니다. 비활성화하려면 -1로 설정하세요.",
   "gateway.injectionAction": "주입 감지 조치",

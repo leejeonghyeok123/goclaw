@@ -12,6 +12,7 @@ import { InfoLabel } from "@/components/shared/info-label";
 interface RateValues {
   max_message_chars?: number;
   rate_limit_rpm?: number;
+  rate_limit_burst?: number;
   inbound_debounce_ms?: number;
 }
 
@@ -33,7 +34,7 @@ export function BehaviorRateCard({ value, onChange }: Props) {
         <CardDescription>{t("behavior.rateLimitDescription")}</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="grid gap-1.5">
             <InfoLabel tip={t("gateway.maxMessageCharsTip")}>{t("gateway.maxMessageChars")}</InfoLabel>
             <Input
@@ -51,6 +52,16 @@ export function BehaviorRateCard({ value, onChange }: Props) {
               onChange={(e) => update({ rate_limit_rpm: Number(e.target.value) })}
               placeholder="20 (0 = disabled)"
               min={0}
+            />
+          </div>
+          <div className="grid gap-1.5">
+            <InfoLabel tip={t("gateway.rateLimitBurstTip")}>{t("gateway.rateLimitBurst")}</InfoLabel>
+            <Input
+              type="number"
+              value={value.rate_limit_burst ?? ""}
+              onChange={(e) => update({ rate_limit_burst: Number(e.target.value) })}
+              placeholder="5"
+              min={1}
             />
           </div>
           <div className="grid gap-1.5">

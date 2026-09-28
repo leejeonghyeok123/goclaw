@@ -11,6 +11,7 @@ import (
 
 // RateLimiter enforces per-key (user/IP) request rate limits using token bucket.
 type RateLimiter struct {
+	mu       sync.Mutex
 	limiters sync.Map   // key → *limiterEntry
 	r        rate.Limit // refill rate (requests per second)
 	burst    int        // max burst size
@@ -40,14 +41,40 @@ func NewRateLimiter(rpm, burst int) *RateLimiter {
 	return rl
 }
 
+// Reconfigure applies a new per-minute limit and immediate burst.
+// rpm <= 0 disables limiting. burst <= 0 uses the default of 5.
+// Existing buckets are replaced so the new burst is available on the next request.
+func (rl *RateLimiter) Reconfigure(rpm, burst int) {
+	if burst <= 0 {
+		burst = 5
+	}
+	r := rate.Limit(0)
+	if rpm > 0 {
+		r = rate.Limit(float64(rpm) / 60.0)
+	}
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+	rl.r = r
+	rl.burst = burst
+	rl.limiters.Range(func(_, value any) bool {
+		entry := value.(*limiterEntry)
+		entry.limiter = rate.NewLimiter(r, burst)
+		return true
+	})
+}
+
 // Allow checks if a request from the given key is allowed.
 // Returns true if allowed, false if rate limited.
 func (rl *RateLimiter) Allow(key string) bool {
+	rl.mu.Lock()
 	if rl.r == 0 {
+		rl.mu.Unlock()
 		return true // disabled
 	}
 	entry := rl.getOrCreate(key)
-	if !entry.limiter.Allow() {
+	limiter := entry.limiter
+	rl.mu.Unlock()
+	if !limiter.Allow() {
 		slog.Warn("security.rate_limited", "key", key)
 		return false
 	}
@@ -57,6 +84,8 @@ func (rl *RateLimiter) Allow(key string) bool {
 
 // Enabled returns true if the rate limiter is active.
 func (rl *RateLimiter) Enabled() bool {
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
 	return rl.r > 0
 }
 

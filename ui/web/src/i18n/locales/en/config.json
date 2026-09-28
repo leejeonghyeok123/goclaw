@@ -68,6 +68,8 @@
   "gateway.maxMessageCharsTip": "Maximum allowed character count per inbound message. Messages exceeding this limit are rejected.",
   "gateway.rateLimitRpm": "Rate Limit (RPM)",
   "gateway.rateLimitRpmTip": "Maximum requests per minute per user. Set to 0 to disable rate limiting.",
+  "gateway.rateLimitBurst": "Burst limit",
+  "gateway.rateLimitBurstTip": "How many requests one user may send at once before the per-minute limit refills. Default is 5.",
   "gateway.inboundDebounceMs": "Inbound Debounce (ms)",
   "gateway.inboundDebounceMsTip": "Delay in milliseconds before processing rapid channel or Web Chat follow-ups. Set 0 for no debounce; positive values merge follow-ups after that wait.",
   "gateway.injectionAction": "Injection Detection Action",

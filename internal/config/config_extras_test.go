@@ -279,6 +279,7 @@ func TestApplySystemConfigs(t *testing.T) {
 		"agent.default_model":       "gpt-4o",
 		"agent.context_window":      "100000",
 		"gateway.rate_limit_rpm":    "60",
+		"gateway.rate_limit_burst":  "12",
 		"gateway.max_message_chars": "50000",
 		"tools.browser.enabled":     "false",
 		"tools.browser.remote_url":  "ws://chrome:9222",
@@ -297,6 +298,9 @@ func TestApplySystemConfigs(t *testing.T) {
 	}
 	if cfg.Gateway.RateLimitRPM != 60 {
 		t.Errorf("rate_limit_rpm: got %d", cfg.Gateway.RateLimitRPM)
+	}
+	if cfg.Gateway.RateLimitBurst != 12 {
+		t.Errorf("rate_limit_burst: got %d", cfg.Gateway.RateLimitBurst)
 	}
 	if cfg.Tools.Browser.Enabled {
 		t.Error("tools.browser.enabled: got true, want false")

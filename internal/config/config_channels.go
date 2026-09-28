@@ -444,6 +444,7 @@ type GatewayConfig struct {
 	MCPAllowedHosts         []string            `json:"mcp_allowed_hosts,omitempty"`          // trusted MCP server hostnames exempt from the private-IP SSRF block during config validation (empty = none)
 	MaxMessageChars         int                 `json:"max_message_chars,omitempty"`          // max user message characters (default 32000)
 	RateLimitRPM            int                 `json:"rate_limit_rpm,omitempty"`             // rate limit: requests per minute per user (default 20, 0 = disabled)
+	RateLimitBurst          int                 `json:"rate_limit_burst,omitempty"`           // requests one user may send at once before the per-minute refill (default 5; 0 uses 5)
 	InjectionAction         string              `json:"injection_action,omitempty"`           // prompt injection action: "log", "warn" (default), "block", "off"
 	InboundDebounceMs       int                 `json:"inbound_debounce_ms,omitempty"`        // silence-window in ms that merges rapid channel/Web Chat messages from the same sender/session; 0 disables for text but media-bearing messages still honor a built-in media floor so multi-attachment bursts (#63) coalesce into a single agent run. Agents may override via per-agent agent_config.inbound_debounce_ms.
 	Quota                   *QuotaConfig        `json:"quota,omitempty"`                      // per-user/group request quotas

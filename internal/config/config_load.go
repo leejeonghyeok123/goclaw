@@ -112,6 +112,7 @@ func Default() *Config {
 			Port:            18790,
 			MaxMessageChars: DefaultMaxMessageChars,
 			RateLimitRPM:    20,
+			RateLimitBurst:  5,
 		},
 		Tools: ToolsConfig{
 			Browser: BrowserToolConfig{

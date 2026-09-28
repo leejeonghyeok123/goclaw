@@ -46,6 +46,7 @@ func (c *Config) ApplySystemConfigs(configs map[string]string) {
 
 	// Gateway behavior
 	integer("gateway.rate_limit_rpm", &c.Gateway.RateLimitRPM)
+	integer("gateway.rate_limit_burst", &c.Gateway.RateLimitBurst)
 	integer("gateway.max_message_chars", &c.Gateway.MaxMessageChars)
 	str("gateway.injection_action", &c.Gateway.InjectionAction)
 	integer("gateway.inbound_debounce_ms", &c.Gateway.InboundDebounceMs)

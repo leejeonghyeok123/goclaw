@@ -68,6 +68,8 @@
   "gateway.maxMessageCharsTip": "每条入站消息允许的最大字符数，超出限制的消息将被拒绝。",
   "gateway.rateLimitRpm": "速率限制（RPM）",
   "gateway.rateLimitRpmTip": "每用户每分钟最大请求数。设为 0 禁用速率限制。",
+  "gateway.rateLimitBurst": "单次突发次数",
+  "gateway.rateLimitBurstTip": "每分钟额度补充之前，单个用户可以连续发送的请求数。默认值为 5。",
   "gateway.inboundDebounceMs": "入站防抖（毫秒）",
   "gateway.inboundDebounceMsTip": "处理来自频道或 Web Chat 的快速连续消息前的延迟毫秒数。设为 0 表示不防抖；正数会在该等待时间后合并连续消息。",
   "gateway.injectionAction": "注入检测动作",

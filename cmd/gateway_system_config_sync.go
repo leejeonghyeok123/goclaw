@@ -103,6 +103,7 @@ func seedConfigForContext(ctx context.Context, sc store.SystemConfigStore, cfg *
 
 	// Gateway behavior (host/port are infra — env/file only, not DB)
 	setInt("gateway.rate_limit_rpm", cfg.Gateway.RateLimitRPM)
+	setInt("gateway.rate_limit_burst", cfg.Gateway.RateLimitBurst)
 	setInt("gateway.max_message_chars", cfg.Gateway.MaxMessageChars)
 	set("gateway.injection_action", cfg.Gateway.InjectionAction)
 	setIntAllowZero("gateway.inbound_debounce_ms", cfg.Gateway.InboundDebounceMs)

@@ -106,3 +106,37 @@ func TestRateLimiter_DefaultBurstWhenZero(t *testing.T) {
 		t.Errorf("expected at least 5 burst requests with default burst, got %d", allowed)
 	}
 }
+
+func TestRateLimiter_ReconfigureRaisesBurstImmediately(t *testing.T) {
+	rl := NewRateLimiter(1, 1)
+	if rl.Allow("user") != true {
+		t.Fatal("first request should pass")
+	}
+	if rl.Allow("user") {
+		t.Fatal("second request should be limited at burst 1")
+	}
+	rl.Reconfigure(1, 4)
+	allowed := 0
+	for range 4 {
+		if rl.Allow("user") {
+			allowed++
+		}
+	}
+	if allowed != 4 {
+		t.Fatalf("reconfigured burst: got %d allows, want 4", allowed)
+	}
+}
+
+func TestRateLimiter_ReconfigureZeroRPMDisables(t *testing.T) {
+	rl := NewRateLimiter(1, 1)
+	rl.Allow("user")
+	rl.Reconfigure(0, 5)
+	if rl.Enabled() {
+		t.Fatal("expected disabled after rpm 0")
+	}
+	for range 10 {
+		if !rl.Allow("user") {
+			t.Fatal("expected allow while disabled")
+		}
+	}
+}

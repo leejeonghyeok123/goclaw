@@ -68,6 +68,8 @@
   "gateway.maxMessageCharsTip": "Số ký tự tối đa được phép trong mỗi tin nhắn đến. Tin nhắn vượt quá giới hạn sẽ bị từ chối.",
   "gateway.rateLimitRpm": "Giới hạn tốc độ (RPM)",
   "gateway.rateLimitRpmTip": "Số yêu cầu tối đa mỗi phút mỗi người dùng. Đặt 0 để tắt giới hạn.",
+  "gateway.rateLimitBurst": "Số yêu cầu tức thì",
+  "gateway.rateLimitBurstTip": "Số yêu cầu một người dùng có thể gửi ngay trước khi hạn mức mỗi phút được nạp lại. Mặc định là 5.",
   "gateway.inboundDebounceMs": "Debounce đầu vào (ms)",
   "gateway.inboundDebounceMsTip": "Độ trễ tính bằng mili giây trước khi xử lý các tin nhắn nhanh liên tiếp từ channel hoặc Web Chat. Đặt 0 để không debounce; giá trị dương sẽ gộp tin nhắn sau thời gian chờ đó.",
   "gateway.injectionAction": "Hành động phát hiện injection",

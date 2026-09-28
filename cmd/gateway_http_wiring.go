@@ -356,7 +356,7 @@ func (d *gatewayDeps) wireHTTPHandlersOnServer(
 		ttsH := httpapi.NewTTSHandler(d.audioMgr)
 		// Reuse the server's rate limiter (per-IP/token; NOT per-user).
 		// Server.RateLimiter() is non-nil by construction (server.go:104).
-		if rl := d.server.RateLimiter(); rl != nil && rl.Enabled() {
+		if rl := d.server.RateLimiter(); rl != nil {
 			ttsH.SetRateLimiter(rl.Allow)
 		}
 		// Wire stores for per-tenant TTS config lookup at synthesis time.

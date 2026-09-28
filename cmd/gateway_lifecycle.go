@@ -111,6 +111,23 @@ func (d *gatewayDeps) runLifecycle(
 	cancel context.CancelFunc,
 	deps lifecycleDeps,
 ) {
+	// Reload gateway request rate limit so Behavior saves apply without a restart.
+	if d.server != nil && d.server.RateLimiter() != nil {
+		d.msgBus.Subscribe("gateway-rate-limit-reload", func(evt bus.Event) {
+			if evt.Name != bus.TopicConfigChanged {
+				return
+			}
+			updatedCfg, ok := evt.Payload.(*config.Config)
+			if !ok {
+				return
+			}
+			d.server.RateLimiter().Reconfigure(updatedCfg.Gateway.RateLimitRPM, updatedCfg.Gateway.RateLimitBurst)
+			slog.Info("gateway rate limit reloaded",
+				"rpm", updatedCfg.Gateway.RateLimitRPM,
+				"burst", updatedCfg.Gateway.RateLimitBurst)
+		})
+	}
+
 	// Reload quota config on config changes via pub/sub.
 	if deps.quotaChecker != nil {
 		d.msgBus.Subscribe("quota-config-reload", func(evt bus.Event) {

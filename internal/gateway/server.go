@@ -152,7 +152,8 @@ func NewServer(cfg *config.Config, eventPub bus.EventPublisher, agents *agent.Ro
 	// rate_limit_rpm > 0  → enabled at that RPM
 	// rate_limit_rpm == 0 → disabled (default, backward compat)
 	// rate_limit_rpm < 0  → disabled explicitly
-	s.rateLimiter = NewRateLimiter(cfg.Gateway.RateLimitRPM, 5)
+	// rate_limit_burst <= 0 → NewRateLimiter uses 5
+	s.rateLimiter = NewRateLimiter(cfg.Gateway.RateLimitRPM, cfg.Gateway.RateLimitBurst)
 
 	s.router = NewMethodRouter(s)
 	return s
@@ -204,7 +205,7 @@ func (s *Server) BuildMux() *http.ServeMux {
 	// OpenAI-compatible chat completions
 	isManaged := s.agentStore != nil
 	chatHandler := httpapi.NewChatCompletionsHandler(s.agents, s.sessions, isManaged)
-	if s.rateLimiter.Enabled() {
+	if s.rateLimiter != nil {
 		chatHandler.SetRateLimiter(s.rateLimiter.Allow)
 	}
 	if s.postTurn != nil {
@@ -1096,7 +1097,7 @@ func StartTestServer(s *Server, ctx context.Context) (addr string, start func())
 
 	isManaged := s.agentStore != nil
 	chatHandler := httpapi.NewChatCompletionsHandler(s.agents, s.sessions, isManaged)
-	if s.rateLimiter.Enabled() {
+	if s.rateLimiter != nil {
 		chatHandler.SetRateLimiter(s.rateLimiter.Allow)
 	}
 	if s.postTurn != nil {

@@ -30,9 +30,10 @@ export function BehaviorSection({ config, onPatch, saving }: Props) {
   });
 
   // Rate limiting (from gateway)
-  const [rate, setRate] = useState<{ max_message_chars?: number; rate_limit_rpm?: number; inbound_debounce_ms?: number }>({
+  const [rate, setRate] = useState<{ max_message_chars?: number; rate_limit_rpm?: number; rate_limit_burst?: number; inbound_debounce_ms?: number }>({
     max_message_chars: gw.max_message_chars,
     rate_limit_rpm: gw.rate_limit_rpm,
+    rate_limit_burst: gw.rate_limit_burst,
     inbound_debounce_ms: gw.inbound_debounce_ms,
   });
 
@@ -59,6 +60,7 @@ export function BehaviorSection({ config, onPatch, saving }: Props) {
     setRate({
       max_message_chars: gw.max_message_chars,
       rate_limit_rpm: gw.rate_limit_rpm,
+      rate_limit_burst: gw.rate_limit_burst,
       inbound_debounce_ms: gw.inbound_debounce_ms,
     });
     setSecurity({
@@ -104,7 +106,7 @@ export function BehaviorSection({ config, onPatch, saving }: Props) {
 }
 
 export interface BehaviorPatchInput {
-  rate: { max_message_chars?: number; rate_limit_rpm?: number; inbound_debounce_ms?: number };
+  rate: { max_message_chars?: number; rate_limit_rpm?: number; rate_limit_burst?: number; inbound_debounce_ms?: number };
   security: { injection_action?: string; scrub_credentials?: boolean };
   chatBehavior: ChatBehaviorValues;
   ux: { intent_classify: boolean; team_work_classify: boolean };
@@ -122,6 +124,7 @@ export function buildBehaviorPatch({
     gateway: {
       max_message_chars: rate.max_message_chars,
       rate_limit_rpm: rate.rate_limit_rpm,
+      rate_limit_burst: rate.rate_limit_burst && rate.rate_limit_burst > 0 ? rate.rate_limit_burst : 5,
       inbound_debounce_ms: rate.inbound_debounce_ms,
       injection_action: security.injection_action,
       chat_behavior: chatBehavior,

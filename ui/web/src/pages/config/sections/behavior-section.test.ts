@@ -7,6 +7,7 @@ describe("buildBehaviorPatch", () => {
       rate: {
         max_message_chars: 12000,
         rate_limit_rpm: 30,
+        rate_limit_burst: 8,
         inbound_debounce_ms: 250,
       },
       security: {
@@ -57,6 +58,7 @@ describe("buildBehaviorPatch", () => {
       gateway: {
         max_message_chars: 12000,
         rate_limit_rpm: 30,
+        rate_limit_burst: 8,
         inbound_debounce_ms: 250,
         injection_action: "warn",
         team_work_classify: false,

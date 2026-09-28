@@ -19,6 +19,9 @@ func TestDefault_SensibleDefaults(t *testing.T) {
 	if cfg.Gateway.RateLimitRPM != 20 {
 		t.Fatalf("default rate limit: got %d, want 20", cfg.Gateway.RateLimitRPM)
 	}
+	if cfg.Gateway.RateLimitBurst != 5 {
+		t.Fatalf("default rate burst: got %d, want 5", cfg.Gateway.RateLimitBurst)
+	}
 	if cfg.Agents.Defaults.Provider != "anthropic" {
 		t.Fatalf("default provider: got %q", cfg.Agents.Defaults.Provider)
 	}
