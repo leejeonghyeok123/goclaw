@@ -131,6 +131,15 @@ export type ChatGPTOAuthRoutingOverrideMode = "inherit" | "custom";
 export type ReasoningOverrideMode = "inherit" | "custom";
 export type InboundDebounceOverrideMode = "inherit" | "custom";
 
+export interface ToolBudgetConfig {
+  max_parallel_tool_calls?: number;
+  tool_result_max_tokens?: number;
+  tool_loop_same_call_warning?: number;
+  tool_loop_same_call_critical?: number;
+  tool_loop_same_result_warning?: number;
+  tool_loop_same_result_critical?: number;
+}
+
 export interface AgentReasoningConfig {
   override_mode?: ReasoningOverrideMode;
   effort?: string;

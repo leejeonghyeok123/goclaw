@@ -14,7 +14,7 @@ func TestToolLoopDetection_NoLoop(t *testing.T) {
 	for i := range 2 {
 		h := s.record("list_files", map[string]any{"path": "."})
 		s.recordResult(h, "access denied")
-		level, _ := s.detect("list_files", h)
+		level, _ := s.detect("list_files", h, toolLoopLimits{})
 		if level != "" {
 			t.Fatalf("iteration %d: expected no detection, got %q", i, level)
 		}
@@ -28,7 +28,7 @@ func TestToolLoopDetection_Warning(t *testing.T) {
 	for range toolLoopWarningThreshold {
 		h := s.record("list_files", map[string]any{"path": "."})
 		s.recordResult(h, "access denied")
-		lastLevel, _ = s.detect("list_files", h)
+		lastLevel, _ = s.detect("list_files", h, toolLoopLimits{})
 	}
 	if lastLevel != "warning" {
 		t.Fatalf("expected warning after %d calls, got %q", toolLoopWarningThreshold, lastLevel)
@@ -42,7 +42,7 @@ func TestToolLoopDetection_Critical(t *testing.T) {
 	for range toolLoopCriticalThreshold {
 		h := s.record("list_files", map[string]any{"path": "."})
 		s.recordResult(h, "access denied")
-		lastLevel, _ = s.detect("list_files", h)
+		lastLevel, _ = s.detect("list_files", h, toolLoopLimits{})
 	}
 	if lastLevel != "critical" {
 		t.Fatalf("expected critical after %d calls, got %q", toolLoopCriticalThreshold, lastLevel)
@@ -57,7 +57,7 @@ func TestToolLoopDetection_DifferentArgs(t *testing.T) {
 		args := map[string]any{"path": string(rune('a' + i))}
 		h := s.record("list_files", args)
 		s.recordResult(h, "access denied")
-		level, _ := s.detect("list_files", h)
+		level, _ := s.detect("list_files", h, toolLoopLimits{})
 		if level != "" {
 			t.Fatalf("iteration %d: expected no detection for different args, got %q", i, level)
 		}
@@ -71,7 +71,7 @@ func TestToolLoopDetection_DifferentResults(t *testing.T) {
 	for i := range 15 {
 		h := s.record("web_fetch", map[string]any{"url": "https://example.com"})
 		s.recordResult(h, "result content "+string(rune('a'+i)))
-		level, _ := s.detect("web_fetch", h)
+		level, _ := s.detect("web_fetch", h, toolLoopLimits{})
 		if level != "" {
 			t.Fatalf("iteration %d: expected no detection for different results, got %q", i, level)
 		}
@@ -90,7 +90,7 @@ func TestToolLoopDetection_MixedTools(t *testing.T) {
 		}
 		h := s.record(toolName, map[string]any{"path": "."})
 		s.recordResult(h, "error")
-		level, _ := s.detect(toolName, h)
+		level, _ := s.detect(toolName, h, toolLoopLimits{})
 		// Each tool is only called 4 times, should at most warn
 		if level == "critical" {
 			t.Fatalf("iteration %d: unexpected critical for alternating tools", i)
@@ -631,7 +631,7 @@ func TestSameResult_Warning(t *testing.T) {
 		s.recordResult(h, sameResult)
 	}
 	rh := hashResult(sameResult)
-	level, _ := s.detectSameResult("list_files", rh)
+	level, _ := s.detectSameResult("list_files", rh, toolLoopLimits{})
 	if level != "warning" {
 		t.Fatalf("expected warning after %d same-result calls, got %q", sameResultWarning, level)
 	}
@@ -646,7 +646,7 @@ func TestSameResult_Critical(t *testing.T) {
 		s.recordResult(h, sameResult)
 	}
 	rh := hashResult(sameResult)
-	level, _ := s.detectSameResult("list_files", rh)
+	level, _ := s.detectSameResult("list_files", rh, toolLoopLimits{})
 	if level != "critical" {
 		t.Fatalf("expected critical after %d same-result calls, got %q", sameResultCritical, level)
 	}
@@ -661,7 +661,7 @@ func TestSameResult_DifferentResults(t *testing.T) {
 		s.recordResult(h, "result "+string(rune('a'+i)))
 	}
 	rh := hashResult("result a") // check against the first result
-	level, _ := s.detectSameResult("list_files", rh)
+	level, _ := s.detectSameResult("list_files", rh, toolLoopLimits{})
 	if level != "" {
 		t.Fatalf("expected no detection for different results, got %q", level)
 	}
@@ -736,5 +736,48 @@ func TestReadOnlyStreak_CreateBetweenReads(t *testing.T) {
 	}
 	if s.readOnlyStreak != 3 {
 		t.Fatalf("expected streak=3, got %d", s.readOnlyStreak)
+	}
+}
+
+func TestToolLoop_RaisedLimits_NoWarningAtOldThreshold(t *testing.T) {
+	var s toolLoopState
+	limits := toolLoopLimits{sameCallWarning: 10, sameCallCritical: 12}
+	for range 5 {
+		h := s.record("list_files", map[string]any{"path": "."})
+		s.recordResult(h, "access denied")
+		level, _ := s.detect("list_files", h, limits)
+		if level != "" {
+			t.Fatalf("raised same-call limits should not warn at %d, got %q", 5, level)
+		}
+	}
+
+	var same toolLoopState
+	sameLimits := toolLoopLimits{sameResultWarning: 8, sameResultCritical: 10}
+	body := "directory listing output"
+	for i := range 6 {
+		args := map[string]any{"path": string(rune('a' + i))}
+		h := same.record("list_files", args)
+		same.recordResult(h, body)
+	}
+	level, _ := same.detectSameResult("list_files", hashResult(body), sameLimits)
+	if level != "" {
+		t.Fatalf("raised same-result limits should not warn at 6, got %q", level)
+	}
+}
+
+func TestToolLoop_DifferentArgsAndResults_NotCritical(t *testing.T) {
+	var s toolLoopState
+	for i := range 8 {
+		args := map[string]any{"path": fmt.Sprintf("/dir/%d", i)}
+		h := s.record("list_files", args)
+		s.recordResult(h, fmt.Sprintf("listing %d", i))
+		level, _ := s.detect("list_files", h, toolLoopLimits{})
+		if level != "" {
+			t.Fatalf("different args and results flagged %q", level)
+		}
+		level, _ = s.detectSameResult("list_files", hashResult(fmt.Sprintf("listing %d", i)), toolLoopLimits{})
+		if level == "critical" {
+			t.Fatal("different results became critical")
+		}
 	}
 }

@@ -50,6 +50,12 @@ func (s *ToolStage) Execute(ctx context.Context, state *RunState) error {
 	if s.deps.ExecuteToolCall == nil {
 		return fmt.Errorf("ExecuteToolCall callback not configured")
 	}
+	// Cap is how many calls from this response actually run. The rest get a
+	// placeholder tool result so the provider's tool_use/tool_result pairing
+	// stays intact. 0 means execute the whole batch.
+	var deferredCalls []providers.ToolCall
+	toolCalls, deferredCalls = splitToolCallsByCap(toolCalls, s.deps.Config.MaxParallelToolCalls)
+	defer s.appendDeferredPlaceholders(state, deferredCalls)
 
 	// Surface this iteration's resolved tool allowlist to the tools themselves,
 	// so a tool can introspect whether a sibling tool is available to the
@@ -98,7 +104,7 @@ func (s *ToolStage) Execute(ctx context.Context, state *RunState) error {
 		if err != nil {
 			return fmt.Errorf("execute tool %s: %w", tc.Name, err)
 		}
-		appendToolBatchMessages(state, msgs, &deferredNonTool)
+		s.appendTrimmedToolBatch(state, msgs, &deferredNonTool)
 		state.Tool.TotalToolCalls++
 
 		// Hook: async PostToolUse — fire and forget with detached context.
@@ -332,7 +338,7 @@ func (s *ToolStage) executeParallel(ctx context.Context, state *RunState, prefli
 			return fmt.Errorf("execute tool %s: %w", tc.Name, r.err)
 		}
 		processed := s.deps.ProcessToolResult(ctx, state, tc, r.msg, r.rawData)
-		appendToolBatchMessages(state, processed, &deferredNonTool)
+		s.appendTrimmedToolBatch(state, processed, &deferredNonTool)
 		state.Tool.TotalToolCalls++
 
 		// Hook: async PostToolUse for parallel path — fire and forget.
@@ -367,6 +373,10 @@ func (s *ToolStage) executeParallel(ctx context.Context, state *RunState, prefli
 	appendDeferredMessages(state, deferredNonTool)
 	s.checkExitConditions(state)
 	return nil
+}
+
+func (s *ToolStage) appendTrimmedToolBatch(state *RunState, msgs []providers.Message, deferred *[]providers.Message) {
+	appendToolBatchMessages(state, s.trimToolMessages(state, msgs), deferred)
 }
 
 // appendToolBatchMessages appends tool-role messages immediately and defers

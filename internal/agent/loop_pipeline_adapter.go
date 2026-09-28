@@ -82,8 +82,10 @@ func (l *Loop) buildPipelineDeps(req *RunRequest, bridgeRS *runState) pipeline.P
 		EventBus:      l.domainBus,
 		Hooks:         l.hookDispatcher,
 		Config: pipeline.PipelineConfig{
-			MaxIterations:      maxIter,
-			MaxToolCalls:       l.maxToolCalls,
+			MaxIterations:        maxIter,
+			MaxToolCalls:         l.maxToolCalls,
+			MaxParallelToolCalls: l.maxParallelToolCalls,
+			ToolResultMaxTokens:  l.toolResultMaxTokens,
 			CheckpointInterval: 5,
 			ContextWindow:      l.contextWindow,
 			MaxTokens:          l.effectiveMaxTokens(),

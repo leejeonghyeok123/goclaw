@@ -14,11 +14,11 @@ import { ConfigGroupHeader } from "@/components/shared/config-group-header";
 import type {
 	  AgentData, ChatGPTOAuthRoutingConfig, CompactionConfig, ContextPruningConfig,
   DeliveryBehaviorConfig, ModelFallbackConfig, ReasoningOverrideMode,
-  SandboxConfig, WorkspaceSharingConfig,
+  SandboxConfig, ToolBudgetConfig, WorkspaceSharingConfig,
 } from "@/types/agent";
 import {
   ChatGPTOAuthRoutingSection, ThinkingSection, WorkspaceSharingSection, CompactionSection,
-  ContextPruningSection, InboundDebounceSection, ModelFallbackSection, SandboxSection,
+  ContextPruningSection, InboundDebounceSection, ModelFallbackSection, SandboxSection, ToolBudgetSection,
 } from "./config-sections";
 import { WorkspaceSection } from "./general-sections";
 import { useProviders } from "@/pages/providers/hooks/use-providers";
@@ -70,6 +70,7 @@ export function AgentAdvancedDialog({ open, onOpenChange, agent, onUpdate }: Age
   const [prune, setPrune] = useState<ContextPruningConfig>(init.prune);
   const [sbEnabled, setSbEnabled] = useState(init.sbEnabled);
   const [sb, setSb] = useState<SandboxConfig>(init.sb);
+  const [toolBudget, setToolBudget] = useState<ToolBudgetConfig>(init.toolBudget);
 
   // Re-sync local state when dialog opens (picks up latest agent data from React Query)
   useEffect(() => {
@@ -93,6 +94,7 @@ export function AgentAdvancedDialog({ open, onOpenChange, agent, onUpdate }: Age
     setPrune(s.prune);
     setSbEnabled(s.sbEnabled);
     setSb(s.sb);
+    setToolBudget(s.toolBudget);
    
   }, [open]);
 
@@ -150,6 +152,7 @@ export function AgentAdvancedDialog({ open, onOpenChange, agent, onUpdate }: Age
         prune,
         sbEnabled,
         sb,
+        toolBudget,
       });
       await onUpdate(updates);
       onOpenChange(false);
@@ -265,6 +268,7 @@ export function AgentAdvancedDialog({ open, onOpenChange, agent, onUpdate }: Age
               onToggle={(v) => { setPruneEnabled(v); if (!v) setPrune({}); }}
               onChange={setPrune}
             />
+            <ToolBudgetSection value={toolBudget} onChange={setToolBudget} />
             <SandboxSection
               enabled={sbEnabled}
               value={sb}

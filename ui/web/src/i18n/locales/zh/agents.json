@@ -810,6 +810,22 @@
       "maxRequestShare": "最大请求份额 (0-1)",
       "maxRequestShareTip": "最终发送给模型的请求最多可占用智能体上下文窗口的比例。超过时，系统会先缩减上下文再调用模型。"
     },
+    "toolBudget": {
+      "title": "工具调用预算",
+      "description": "按智能体覆盖。留空则使用系统默认值。大于 0 的值会替换默认值。",
+      "max_parallel_tool_calls": "每次模型回复执行的调用数",
+      "max_parallel_tool_callsTip": "一次模型回复里本轮实际执行的工具数。其余推迟到下一轮。0 继承默认值（3）。",
+      "tool_result_max_tokens": "单条工具结果最大 token",
+      "tool_result_max_tokensTip": "写入上下文前把每条工具结果裁成头尾。默认 1500，对应约 6000 字符的软裁剪。",
+      "tool_loop_same_call_warning": "相同调用警告",
+      "tool_loop_same_call_warningTip": "同一工具、同一参数、同一结果重复这么多次时警告。默认 3。",
+      "tool_loop_same_call_critical": "相同调用停止",
+      "tool_loop_same_call_criticalTip": "同一工具、同一参数、同一结果重复这么多次时停止本次运行。默认 5。",
+      "tool_loop_same_result_warning": "相同结果警告",
+      "tool_loop_same_result_warningTip": "同一工具用不同参数返回相同结果这么多次时警告。默认 4。",
+      "tool_loop_same_result_critical": "相同结果停止",
+      "tool_loop_same_result_criticalTip": "同一工具用不同参数返回相同结果这么多次时停止本次运行。默认 6。"
+    },
     "inboundDebounce": {
       "title": "入站防抖",
       "description": "为此 Agent 覆盖 Web Chat 和频道快速连续消息的合并设置。",

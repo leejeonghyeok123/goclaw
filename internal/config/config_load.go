@@ -85,7 +85,13 @@ func Default() *Config {
 				MaxTokens:           DefaultMaxTokens,
 				Temperature:         DefaultTemperature,
 				MaxToolIterations:   DefaultMaxIterations,
-				MaxToolCalls:        25,
+				MaxToolCalls:               DefaultMaxToolCalls,
+				MaxParallelToolCalls:       DefaultMaxParallelToolCalls,
+				ToolResultMaxTokens:        DefaultToolResultMaxTokens,
+				ToolLoopSameCallWarning:    DefaultToolLoopSameCallWarning,
+				ToolLoopSameCallCritical:   DefaultToolLoopSameCallCritical,
+				ToolLoopSameResultWarning:  DefaultToolLoopSameResultWarning,
+				ToolLoopSameResultCritical: DefaultToolLoopSameResultCritical,
 				ContextWindow:       DefaultContextWindow,
 				Subagents: &SubagentsConfig{
 					MaxConcurrent: 20,
@@ -487,6 +493,24 @@ func (c *Config) ResolveAgent(agentID string) AgentDefaults {
 		}
 		if spec.MaxToolCalls > 0 {
 			d.MaxToolCalls = spec.MaxToolCalls
+		}
+		if spec.MaxParallelToolCalls > 0 {
+			d.MaxParallelToolCalls = spec.MaxParallelToolCalls
+		}
+		if spec.ToolResultMaxTokens > 0 {
+			d.ToolResultMaxTokens = spec.ToolResultMaxTokens
+		}
+		if spec.ToolLoopSameCallWarning > 0 {
+			d.ToolLoopSameCallWarning = spec.ToolLoopSameCallWarning
+		}
+		if spec.ToolLoopSameCallCritical > 0 {
+			d.ToolLoopSameCallCritical = spec.ToolLoopSameCallCritical
+		}
+		if spec.ToolLoopSameResultWarning > 0 {
+			d.ToolLoopSameResultWarning = spec.ToolLoopSameResultWarning
+		}
+		if spec.ToolLoopSameResultCritical > 0 {
+			d.ToolLoopSameResultCritical = spec.ToolLoopSameResultCritical
 		}
 		if spec.Workspace != "" {
 			d.Workspace = spec.Workspace

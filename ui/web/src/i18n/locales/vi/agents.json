@@ -810,6 +810,22 @@
       "maxRequestShare": "Phần request tối đa (0-1)",
       "maxRequestShareTip": "Tỷ lệ tối đa của cửa sổ ngữ cảnh agent được phép dùng cho request cuối gửi model. Nếu vượt, hệ thống sẽ giảm context trước khi gọi model."
     },
+    "toolBudget": {
+      "title": "Ngân sách gọi công cụ",
+      "description": "Ghi đè theo agent. Để trống để dùng mặc định hệ thống. Giá trị lớn hơn 0 sẽ thay mặc định.",
+      "max_parallel_tool_calls": "Số lệnh mỗi phản hồi mô hình",
+      "max_parallel_tool_callsTip": "Số tool call trong một phản hồi được chạy ở lượt này. Phần còn lại chuyển sang lượt sau. 0 kế thừa mặc định (3).",
+      "tool_result_max_tokens": "Token tối đa mỗi kết quả",
+      "tool_result_max_tokensTip": "Cắt mỗi kết quả tool còn đầu và đuôi trước khi đưa vào ngữ cảnh. Mặc định 1500 tương ứng soft trim 6000 ký tự.",
+      "tool_loop_same_call_warning": "Cảnh báo gọi giống nhau",
+      "tool_loop_same_call_warningTip": "Cảnh báo khi cùng công cụ, cùng đối số và cùng kết quả lặp lại bấy nhiêu lần. Mặc định 3.",
+      "tool_loop_same_call_critical": "Dừng khi gọi giống nhau",
+      "tool_loop_same_call_criticalTip": "Dừng lượt chạy khi cùng công cụ, cùng đối số và cùng kết quả lặp lại bấy nhiêu lần. Mặc định 5.",
+      "tool_loop_same_result_warning": "Cảnh báo kết quả giống nhau",
+      "tool_loop_same_result_warningTip": "Cảnh báo khi cùng công cụ trả cùng kết quả với đối số khác. Mặc định 4.",
+      "tool_loop_same_result_critical": "Dừng khi kết quả giống nhau",
+      "tool_loop_same_result_criticalTip": "Dừng lượt chạy khi cùng công cụ trả cùng kết quả với đối số khác. Mặc định 6."
+    },
     "inboundDebounce": {
       "title": "Debounce đầu vào",
       "description": "Override việc gộp tin nhắn nhanh liên tiếp từ Web Chat và channel cho agent này.",

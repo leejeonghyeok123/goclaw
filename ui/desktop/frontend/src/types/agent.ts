@@ -68,6 +68,15 @@ export interface AgentReasoningConfig {
   fallback?: 'downgrade' | 'provider_default' | 'off'
 }
 
+export interface ToolBudgetConfig {
+  max_parallel_tool_calls?: number
+  tool_result_max_tokens?: number
+  tool_loop_same_call_warning?: number
+  tool_loop_same_call_critical?: number
+  tool_loop_same_result_warning?: number
+  tool_loop_same_result_critical?: number
+}
+
 // --- Main agent data ---
 
 export interface AgentData {

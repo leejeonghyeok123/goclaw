@@ -1,8 +1,27 @@
 import { useState, useCallback } from 'react'
 import type {
   AgentData, ContextPruningConfig, SubagentsConfig, ToolPolicyConfig,
-  SandboxConfig, AgentReasoningConfig, ReasoningOverrideMode,
+  SandboxConfig, AgentReasoningConfig, ReasoningOverrideMode, ToolBudgetConfig,
 } from '../types/agent'
+
+const TOOL_BUDGET_KEYS = [
+  'max_parallel_tool_calls',
+  'tool_result_max_tokens',
+  'tool_loop_same_call_warning',
+  'tool_loop_same_call_critical',
+  'tool_loop_same_result_warning',
+  'tool_loop_same_result_critical',
+] as const
+
+function readToolBudget(other: AgentData['other_config']): ToolBudgetConfig {
+  const out: ToolBudgetConfig = {}
+  if (!other) return out
+  for (const key of TOOL_BUDGET_KEYS) {
+    const raw = other[key]
+    if (typeof raw === 'number' && Number.isFinite(raw) && raw > 0) out[key] = Math.trunc(raw)
+  }
+  return out
+}
 
 export function useAgentDetailState(
   agent: AgentData,
@@ -45,6 +64,7 @@ export function useAgentDetailState(
 
   // --- Compaction ---
   const [compactionConfig, setCompactionConfig] = useState(agent.compaction_config ?? {})
+  const [toolBudget, setToolBudget] = useState<ToolBudgetConfig>(() => readToolBudget(agent.other_config))
 
   // --- Subagents ---
   const [subEnabled, setSubEnabled] = useState(agent.subagents_config != null)
@@ -95,6 +115,11 @@ export function useAgentDetailState(
       } else {
         delete otherConfig.pinned_skills
       }
+      for (const key of TOOL_BUDGET_KEYS) {
+        const n = toolBudget[key]
+        if (typeof n === 'number' && Number.isFinite(n) && n > 0) otherConfig[key] = Math.trunc(n)
+        else delete otherConfig[key]
+      }
 
       await onSave(agent.id, {
         display_name: displayName.trim() || undefined,
@@ -129,7 +154,7 @@ export function useAgentDetailState(
     }
   }, [
     agent, emoji, displayName, description, selfEvolve, skillLearning, skillNudgeInterval,
-    promptMode, reasoningMode, thinkingLevel, pinnedSkills,
+    promptMode, reasoningMode, thinkingLevel, pinnedSkills, toolBudget,
     provider, model, contextWindow, maxToolIterations, isDefault, status,
     pruningEnabled, pruningConfig, compactionConfig,
     subEnabled, subConfig, toolsEnabled, toolsConfig, sandboxEnabled, sandboxConfig,
@@ -154,6 +179,7 @@ export function useAgentDetailState(
     pruningEnabled, setPruningEnabled, pruningConfig, setPruningConfig,
     // Compaction
     compactionConfig, setCompactionConfig,
+    toolBudget, setToolBudget,
     // Subagents
     subEnabled, setSubEnabled, subConfig, setSubConfig,
     // Tool policy

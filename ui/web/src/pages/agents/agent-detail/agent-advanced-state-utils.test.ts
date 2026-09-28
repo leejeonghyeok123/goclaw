@@ -37,6 +37,7 @@ function buildPayload(deliveryBehaviorMode: "inherit" | "custom", deliveryBehavi
     prune: {},
     sbEnabled: false,
     sb: {},
+    toolBudget: {},
   });
 }
 

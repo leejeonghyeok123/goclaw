@@ -149,6 +149,11 @@ func (d *PipelineDeps) FireHook(ctx context.Context, ev hooks.Event) (hooks.Fire
 type PipelineConfig struct {
 	MaxIterations      int
 	MaxToolCalls       int
+	// MaxParallelToolCalls limits how many tool calls from one model response
+	// are executed this turn. 0 executes the whole batch.
+	MaxParallelToolCalls int
+	// ToolResultMaxTokens trims each tool result before it is stored. 0 disables.
+	ToolResultMaxTokens int
 	CheckpointInterval int // flush every N iterations (default 5)
 	ContextWindow      int
 	MaxTokens          int

@@ -215,6 +215,17 @@ func (s *PruneStage) Execute(ctx context.Context, state *RunState) error {
 	state.Prune.HistoryTokens = historyTokens
 
 	if historyTokens > budget {
+		if shrinkToolResults(state, s.deps.Config.ToolResultMaxTokens) {
+			historyTokens = s.countHistory(state)
+			state.Prune.HistoryTokens = historyTokens
+			slog.Info("context.tool_results_shrunk",
+				"session_key", state.Input.SessionKey,
+				"tokens", historyTokens,
+				"budget", budget,
+			)
+		}
+	}
+	if historyTokens > budget {
 		slog.Warn("still over budget after compaction", "tokens", historyTokens, "budget", budget)
 		s.result = AbortRun
 	}

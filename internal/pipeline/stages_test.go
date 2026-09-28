@@ -3,6 +3,7 @@ package pipeline
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -3679,5 +3680,174 @@ func TestFinalContextActualLevel(t *testing.T) {
 	}
 	if level, reason := finalContextActualLevel(estimate, 121); level != slog.LevelWarn || reason != "hard_cap_exceeded" {
 		t.Fatalf("hard cap = %v/%q, want warn/hard_cap_exceeded", level, reason)
+	}
+}
+
+func toolCallsNamed(n int) []providers.ToolCall {
+	out := make([]providers.ToolCall, n)
+	for i := range out {
+		out[i] = providers.ToolCall{ID: fmt.Sprintf("c%d", i+1), Name: "mcp_read", Arguments: map[string]any{"i": i}}
+	}
+	return out
+}
+
+func parallelToolDeps(raw *[]string) *PipelineDeps {
+	var mu sync.Mutex
+	return &PipelineDeps{
+		ExecuteToolCall: func(_ context.Context, _ *RunState, _ providers.ToolCall) ([]providers.Message, error) {
+			return nil, nil
+		},
+		ExecuteToolRaw: func(_ context.Context, tc providers.ToolCall) (providers.Message, any, error) {
+			mu.Lock()
+			*raw = append(*raw, tc.ID)
+			mu.Unlock()
+			return providers.Message{Role: "tool", Content: "ok:" + tc.ID, ToolCallID: tc.ID, ToolName: tc.Name}, nil, nil
+		},
+		ProcessToolResult: func(_ context.Context, _ *RunState, _ providers.ToolCall, rawMsg providers.Message, _ any) []providers.Message {
+			return []providers.Message{rawMsg}
+		},
+		ParallelEligibleToolCall: func(providers.ToolCall) bool { return true },
+	}
+}
+
+func TestToolStage_CapExecutesPrefixAndPlaceholders(t *testing.T) {
+	t.Parallel()
+	var raw []string
+	deps := parallelToolDeps(&raw)
+	deps.Config.MaxParallelToolCalls = 3
+	stage := NewToolStage(deps)
+	state := defaultState()
+	state.Think.LastResponse = &providers.ChatResponse{ToolCalls: toolCallsNamed(5)}
+
+	if err := stage.Execute(context.Background(), state); err != nil {
+		t.Fatalf("Execute: %v", err)
+	}
+	if len(raw) != 3 {
+		t.Fatalf("executed %v, want 3 (semaphore %d must not raise the cap)", raw, defaultParallelToolCallLimit)
+	}
+	pending := state.Messages.Pending()
+	if len(pending) != 5 {
+		t.Fatalf("pending = %d, want 5", len(pending))
+	}
+	seen := map[string]bool{}
+	for i, msg := range pending {
+		if msg.Role != "tool" || msg.ToolCallID == "" {
+			t.Fatalf("pending[%d] = %+v", i, msg)
+		}
+		seen[msg.ToolCallID] = true
+		if i >= 3 && !strings.Contains(msg.Content, "Deferred by GoClaw") {
+			t.Fatalf("pending[%d] content = %q", i, msg.Content)
+		}
+	}
+	for _, id := range []string{"c1", "c2", "c3", "c4", "c5"} {
+		if !seen[id] {
+			t.Fatalf("missing tool result %s", id)
+		}
+	}
+	if stage.Result() == BreakLoop {
+		t.Fatal("cap must not end the run")
+	}
+}
+
+func TestToolStage_CapZeroExecutesWholeBatch(t *testing.T) {
+	t.Parallel()
+	var raw []string
+	deps := parallelToolDeps(&raw)
+	deps.Config.MaxParallelToolCalls = 0
+	stage := NewToolStage(deps)
+	state := defaultState()
+	state.Think.LastResponse = &providers.ChatResponse{ToolCalls: toolCallsNamed(5)}
+	if err := stage.Execute(context.Background(), state); err != nil {
+		t.Fatalf("Execute: %v", err)
+	}
+	if len(raw) != 5 {
+		t.Fatalf("executed %d, want 5", len(raw))
+	}
+}
+
+func TestToolStage_TrimsToolResultBeforePending(t *testing.T) {
+	t.Parallel()
+	long := strings.Repeat("x", 20000)
+	deps := &PipelineDeps{
+		Config: PipelineConfig{ToolResultMaxTokens: 100},
+		ExecuteToolCall: func(_ context.Context, _ *RunState, tc providers.ToolCall) ([]providers.Message, error) {
+			return []providers.Message{{
+				Role: "tool", Content: long, ToolCallID: tc.ID, ToolName: tc.Name,
+			}}, nil
+		},
+	}
+	stage := NewToolStage(deps)
+	state := defaultState()
+	state.Think.LastResponse = &providers.ChatResponse{ToolCalls: []providers.ToolCall{
+		{ID: "keep-me", Name: "mcp_read"},
+	}}
+	if err := stage.Execute(context.Background(), state); err != nil {
+		t.Fatalf("Execute: %v", err)
+	}
+	pending := state.Messages.Pending()
+	if len(pending) != 1 {
+		t.Fatalf("pending = %d", len(pending))
+	}
+	got := pending[0]
+	if got.ToolCallID != "keep-me" {
+		t.Fatalf("ToolCallID = %q", got.ToolCallID)
+	}
+	if !strings.Contains(got.Content, "Tool result trimmed") || len(got.Content) >= len(long) {
+		t.Fatalf("content was not head+tail trimmed, len=%d", len(got.Content))
+	}
+}
+
+type contentLenCounter struct{}
+
+func (contentLenCounter) Count(_ string, content string) int { return len(content)/4 + 1 }
+func (contentLenCounter) CountMessages(_ string, msgs []providers.Message) int {
+	n := 0
+	for _, msg := range msgs {
+		n += len(msg.Content)/4 + 1
+	}
+	return n
+}
+func (contentLenCounter) CountToolSchemas(string, []providers.ToolDefinition) int { return 0 }
+func (contentLenCounter) ModelContextWindow(string) int                           { return 200_000 }
+
+func TestPruneStage_PostCompactionShrinkThenAbort(t *testing.T) {
+	t.Parallel()
+	huge := strings.Repeat("m", 8000)
+	deps := &PipelineDeps{
+		Config: PipelineConfig{
+			ContextWindow:       1000,
+			MaxTokens:           100,
+			ToolResultMaxTokens: 200,
+		},
+		TokenCounter: contentLenCounter{},
+		PruneMessages: func(msgs []providers.Message, _ int) ([]providers.Message, PruneStats) {
+			return msgs, PruneStats{}
+		},
+		CompactMessages: func(_ context.Context, _ []providers.Message, _ string) ([]providers.Message, error) {
+			history := make([]providers.Message, 0, 21)
+			history = append(history, providers.Message{Role: "tool", Content: huge, ToolCallID: "recent", ToolName: "mcp_read"})
+			for range 20 {
+				history = append(history, providers.Message{Role: "user", Content: strings.Repeat("u", 400)})
+			}
+			return history, nil
+		},
+	}
+	stage := NewPruneStage(deps, NewMemoryFlushStage(deps))
+	state := defaultState()
+	state.Messages.SetHistory([]providers.Message{{Role: "user", Content: strings.Repeat("z", 20000)}})
+	if err := stage.Execute(context.Background(), state); err != nil {
+		t.Fatalf("Execute: %v", err)
+	}
+	var toolContent string
+	for _, msg := range state.Messages.History() {
+		if msg.ToolCallID == "recent" {
+			toolContent = msg.Content
+		}
+	}
+	if toolContent == huge || toolContent == "" {
+		t.Fatalf("recent tool result was not reduced: len=%d", len(toolContent))
+	}
+	if stage.Result() != AbortRun {
+		t.Fatalf("Result() = %v, want AbortRun while user history still exceeds budget", stage.Result())
 	}
 }

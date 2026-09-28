@@ -117,6 +117,28 @@ export function AiDefaultsSection({ data, onSave, saving }: Props) {
             />
           </div>
           <div className="grid gap-1.5">
+            <InfoLabel tip={t("agents.maxParallelToolCallsTip")}>{t("agents.maxParallelToolCalls")}</InfoLabel>
+            <Input
+              type="number"
+              min={0}
+              className="text-base md:text-sm"
+              value={defaults.max_parallel_tool_calls ?? ""}
+              onChange={(e) => updateDefaults({ max_parallel_tool_calls: Number(e.target.value) })}
+              placeholder="3"
+            />
+          </div>
+          <div className="grid gap-1.5">
+            <InfoLabel tip={t("agents.toolResultMaxTokensTip")}>{t("agents.toolResultMaxTokens")}</InfoLabel>
+            <Input
+              type="number"
+              min={0}
+              className="text-base md:text-sm"
+              value={defaults.tool_result_max_tokens ?? ""}
+              onChange={(e) => updateDefaults({ tool_result_max_tokens: Number(e.target.value) })}
+              placeholder="1500"
+            />
+          </div>
+          <div className="grid gap-1.5">
             <InfoLabel tip={t("agents.contextWindowTip")}>{t("agents.contextWindow")}</InfoLabel>
             <Input
               type="number"
@@ -124,6 +146,25 @@ export function AiDefaultsSection({ data, onSave, saving }: Props) {
               onChange={(e) => updateDefaults({ context_window: Number(e.target.value) })}
               placeholder="200000"
             />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-1.5">
+            <InfoLabel tip={t("agents.toolLoopSameCallWarningTip")}>{t("agents.toolLoopSameCallWarning")}</InfoLabel>
+            <Input type="number" min={0} className="text-base md:text-sm" value={defaults.tool_loop_same_call_warning ?? ""} onChange={(e) => updateDefaults({ tool_loop_same_call_warning: Number(e.target.value) })} placeholder="3" />
+          </div>
+          <div className="grid gap-1.5">
+            <InfoLabel tip={t("agents.toolLoopSameCallCriticalTip")}>{t("agents.toolLoopSameCallCritical")}</InfoLabel>
+            <Input type="number" min={0} className="text-base md:text-sm" value={defaults.tool_loop_same_call_critical ?? ""} onChange={(e) => updateDefaults({ tool_loop_same_call_critical: Number(e.target.value) })} placeholder="5" />
+          </div>
+          <div className="grid gap-1.5">
+            <InfoLabel tip={t("agents.toolLoopSameResultWarningTip")}>{t("agents.toolLoopSameResultWarning")}</InfoLabel>
+            <Input type="number" min={0} className="text-base md:text-sm" value={defaults.tool_loop_same_result_warning ?? ""} onChange={(e) => updateDefaults({ tool_loop_same_result_warning: Number(e.target.value) })} placeholder="4" />
+          </div>
+          <div className="grid gap-1.5">
+            <InfoLabel tip={t("agents.toolLoopSameResultCriticalTip")}>{t("agents.toolLoopSameResultCritical")}</InfoLabel>
+            <Input type="number" min={0} className="text-base md:text-sm" value={defaults.tool_loop_same_result_critical ?? ""} onChange={(e) => updateDefaults({ tool_loop_same_result_critical: Number(e.target.value) })} placeholder="6" />
           </div>
         </div>
 

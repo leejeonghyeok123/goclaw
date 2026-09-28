@@ -387,6 +387,16 @@
       "memoryFlush": "Memory Flush",
       "memoryFlushTip": "Before compaction, the agent gets a turn to save important context to memory files. Also triggers Knowledge Graph extraction."
     },
+    "toolBudget": {
+      "title": "Tool call budget",
+      "description": "Per-agent overrides. Leave a field empty to use system defaults.",
+      "max_parallel_tool_calls": "Calls per model response",
+      "tool_result_max_tokens": "Max tokens per tool result",
+      "tool_loop_same_call_warning": "Same call warning",
+      "tool_loop_same_call_critical": "Same call stop",
+      "tool_loop_same_result_warning": "Same result warning",
+      "tool_loop_same_result_critical": "Same result stop"
+    },
     "contextPruning": {
       "title": "Context Pruning",
       "description": "Trim old tool results to save context window",

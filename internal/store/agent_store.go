@@ -335,6 +335,47 @@ func (a *AgentData) ParsePinnedSkills() []string {
 	return result
 }
 
+// ToolBudget is the per-agent tool-call budget stored in other_config.
+// Zero fields mean "inherit system defaults".
+type ToolBudget struct {
+	MaxToolCalls               int
+	MaxParallelToolCalls       int
+	ToolResultMaxTokens        int
+	ToolLoopSameCallWarning    int
+	ToolLoopSameCallCritical   int
+	ToolLoopSameResultWarning  int
+	ToolLoopSameResultCritical int
+}
+
+// ParseToolBudget reads tool-budget overrides from other_config.
+// Missing or malformed JSON returns a zero ToolBudget (inherit defaults).
+func (a *AgentData) ParseToolBudget() ToolBudget {
+	if a == nil || len(a.OtherConfig) <= 2 {
+		return ToolBudget{}
+	}
+	var bag struct {
+		MaxToolCalls               int `json:"max_tool_calls"`
+		MaxParallelToolCalls       int `json:"max_parallel_tool_calls"`
+		ToolResultMaxTokens        int `json:"tool_result_max_tokens"`
+		ToolLoopSameCallWarning    int `json:"tool_loop_same_call_warning"`
+		ToolLoopSameCallCritical   int `json:"tool_loop_same_call_critical"`
+		ToolLoopSameResultWarning  int `json:"tool_loop_same_result_warning"`
+		ToolLoopSameResultCritical int `json:"tool_loop_same_result_critical"`
+	}
+	if json.Unmarshal(a.OtherConfig, &bag) != nil {
+		return ToolBudget{}
+	}
+	return ToolBudget{
+		MaxToolCalls:               bag.MaxToolCalls,
+		MaxParallelToolCalls:       bag.MaxParallelToolCalls,
+		ToolResultMaxTokens:        bag.ToolResultMaxTokens,
+		ToolLoopSameCallWarning:    bag.ToolLoopSameCallWarning,
+		ToolLoopSameCallCritical:   bag.ToolLoopSameCallCritical,
+		ToolLoopSameResultWarning:  bag.ToolLoopSameResultWarning,
+		ToolLoopSameResultCritical: bag.ToolLoopSameResultCritical,
+	}
+}
+
 // ParseSkillNudgeInterval returns the tool-call interval for skill creation reminders.
 // Returns 15 (default) when column is 0 (unset).
 func (a *AgentData) ParseSkillNudgeInterval() int {

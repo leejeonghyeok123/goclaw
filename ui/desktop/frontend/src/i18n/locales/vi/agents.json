@@ -387,6 +387,16 @@
       "memoryFlush": "Ghi nhớ trước nén",
       "memoryFlushTip": "Trước khi nén, agent được một lượt để lưu ngữ cảnh quan trọng vào file bộ nhớ. Cũng kích hoạt trích xuất Knowledge Graph."
     },
+    "toolBudget": {
+      "title": "Ngân sách gọi công cụ",
+      "description": "Ghi đè theo agent. Để trống để dùng mặc định hệ thống.",
+      "max_parallel_tool_calls": "Số lệnh mỗi phản hồi mô hình",
+      "tool_result_max_tokens": "Token tối đa mỗi kết quả",
+      "tool_loop_same_call_warning": "Cảnh báo gọi giống nhau",
+      "tool_loop_same_call_critical": "Dừng khi gọi giống nhau",
+      "tool_loop_same_result_warning": "Cảnh báo kết quả giống nhau",
+      "tool_loop_same_result_critical": "Dừng khi kết quả giống nhau"
+    },
     "contextPruning": {
       "title": "Cắt bớt ngữ cảnh",
       "description": "Cắt bỏ kết quả công cụ cũ để tiết kiệm cửa sổ ngữ cảnh",

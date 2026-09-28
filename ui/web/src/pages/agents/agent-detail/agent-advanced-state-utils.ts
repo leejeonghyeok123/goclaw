@@ -8,6 +8,7 @@ import type {
   ModelFallbackConfig,
   ReasoningOverrideMode,
   SandboxConfig,
+  ToolBudgetConfig,
   WorkspaceSharingConfig,
 } from "@/types/agent";
 import {
@@ -43,6 +44,7 @@ export interface AdvancedDialogState {
   prune: ContextPruningConfig;
   sbEnabled: boolean;
   sb: SandboxConfig;
+  toolBudget: ToolBudgetConfig;
 }
 
 export function deriveState(
@@ -127,6 +129,7 @@ export function deriveState(
     prune: agent.context_pruning ?? {},
     sbEnabled: agent.sandbox_config != null,
     sb: agent.sandbox_config ?? {},
+    toolBudget: readToolBudget(otherConfig),
   };
 }
 
@@ -153,6 +156,7 @@ export interface BuildAdvancedUpdatePayloadParams {
   prune: ContextPruningConfig;
   sbEnabled: boolean;
   sb: SandboxConfig;
+  toolBudget: ToolBudgetConfig;
 }
 
 export function buildAdvancedUpdatePayload(
@@ -163,7 +167,7 @@ export function buildAdvancedUpdatePayload(
     expertReasoningAvailable, reasoningMode, reasoningEffort, reasoningExpert,
     reasoningFallback, thinkingLevel, chatgptRouting, wsSharing,
     modelFallback, comp, deliveryBehaviorMode, deliveryBehavior, inboundDebounceMode, inboundDebounceMs,
-    pruneEnabled, prune, sbEnabled, sb,
+    pruneEnabled, prune, sbEnabled, sb, toolBudget,
   } = params;
 
   const routingPayload = buildAgentOtherConfigWithChatGPTOAuthRouting(
@@ -194,6 +198,7 @@ export function buildAdvancedUpdatePayload(
     deliveryBehaviorMode,
     deliveryBehavior,
   );
+  updates.other_config = buildOtherConfigWithToolBudget(updates.other_config, toolBudget);
 
   // Build reasoning_config and thinking_level as top-level fields
   if (reasoningMode === "inherit") {
@@ -254,6 +259,42 @@ function buildOtherConfigWithInboundDebounce(
     delete bag.inbound_debounce_ms;
   } else {
     bag.inbound_debounce_ms = Math.max(0, Math.trunc(Number.isFinite(debounceMs) ? debounceMs : 0));
+  }
+  return Object.keys(bag).length > 0 ? bag : null;
+}
+
+const TOOL_BUDGET_KEYS = [
+  "max_parallel_tool_calls",
+  "tool_result_max_tokens",
+  "tool_loop_same_call_warning",
+  "tool_loop_same_call_critical",
+  "tool_loop_same_result_warning",
+  "tool_loop_same_result_critical",
+] as const;
+
+function readToolBudget(otherConfig: Record<string, unknown>): ToolBudgetConfig {
+  const out: ToolBudgetConfig = {};
+  for (const key of TOOL_BUDGET_KEYS) {
+    const raw = otherConfig[key];
+    if (typeof raw === "number" && Number.isFinite(raw) && raw > 0) {
+      out[key] = Math.trunc(raw);
+    }
+  }
+  return out;
+}
+
+function buildOtherConfigWithToolBudget(
+  base: unknown,
+  value: ToolBudgetConfig,
+): Record<string, unknown> | null {
+  const bag = isPlainObject(base) ? { ...base } : {};
+  for (const key of TOOL_BUDGET_KEYS) {
+    const n = value[key];
+    if (typeof n === "number" && Number.isFinite(n) && n > 0) {
+      bag[key] = Math.trunc(n);
+    } else {
+      delete bag[key];
+    }
   }
   return Object.keys(bag).length > 0 ? bag : null;
 }

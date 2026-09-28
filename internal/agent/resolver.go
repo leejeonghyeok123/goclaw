@@ -55,6 +55,10 @@ type ResolverDeps struct {
 	InjectionAction string // "log", "warn", "block", "off"
 	MaxMessageChars int
 
+	// AppConfig supplies agents.defaults (and per-key file overrides) for tool budgets.
+	// Nil falls back to config.Default().
+	AppConfig *config.Config
+
 	// Global defaults (from config.json) — per-agent DB overrides take priority
 	CompactionCfg          *config.CompactionConfig
 	ContextPruningCfg      *config.ContextPruningConfig
@@ -471,8 +475,16 @@ func NewManagedResolver(deps ResolverDeps) ResolverFunc {
 		}
 
 		restrictVal := true // always restrict agents to their workspace
+		budget := resolveToolBudget(deps.AppConfig, agentKey, ag.ParseToolBudget())
 		loop := NewLoop(LoopConfig{
-			ID:                     ag.AgentKey,
+			ID:                      ag.AgentKey,
+			MaxToolCalls:            budget.MaxToolCalls,
+			MaxParallelToolCalls:    budget.MaxParallelToolCalls,
+			ToolResultMaxTokens:     budget.ToolResultMaxTokens,
+			ToolLoopSameCallWarning: budget.ToolLoopSameCallWarning,
+			ToolLoopSameCallCritical: budget.ToolLoopSameCallCritical,
+			ToolLoopSameResultWarning: budget.ToolLoopSameResultWarning,
+			ToolLoopSameResultCritical: budget.ToolLoopSameResultCritical,
 			DisplayName:            ag.DisplayName,
 			AgentUUID:              ag.ID,
 			TenantID:               ag.TenantID,
@@ -561,6 +573,38 @@ func NewManagedResolver(deps ResolverDeps) ResolverFunc {
 		slog.Info("resolved agent from DB", "agent", agentKey, "model", ag.Model, "provider", ag.Provider)
 		return loop, nil
 	}
+}
+
+// resolveToolBudget merges system defaults with an other_config override.
+// A positive override wins. Zero means inherit. When appCfg is nil, defaults
+// come from config.Default() (MaxToolCalls 25 and the tool-budget defaults).
+func resolveToolBudget(appCfg *config.Config, agentKey string, override store.ToolBudget) config.AgentDefaults {
+	base := config.Default().Agents.Defaults
+	if appCfg != nil {
+		base = appCfg.ResolveAgent(agentKey)
+	}
+	if override.MaxToolCalls > 0 {
+		base.MaxToolCalls = override.MaxToolCalls
+	}
+	if override.MaxParallelToolCalls > 0 {
+		base.MaxParallelToolCalls = override.MaxParallelToolCalls
+	}
+	if override.ToolResultMaxTokens > 0 {
+		base.ToolResultMaxTokens = override.ToolResultMaxTokens
+	}
+	if override.ToolLoopSameCallWarning > 0 {
+		base.ToolLoopSameCallWarning = override.ToolLoopSameCallWarning
+	}
+	if override.ToolLoopSameCallCritical > 0 {
+		base.ToolLoopSameCallCritical = override.ToolLoopSameCallCritical
+	}
+	if override.ToolLoopSameResultWarning > 0 {
+		base.ToolLoopSameResultWarning = override.ToolLoopSameResultWarning
+	}
+	if override.ToolLoopSameResultCritical > 0 {
+		base.ToolLoopSameResultCritical = override.ToolLoopSameResultCritical
+	}
+	return base
 }
 
 // InvalidateAgent removes an agent from the router cache, forcing re-resolution.

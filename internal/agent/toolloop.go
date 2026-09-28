@@ -97,10 +97,49 @@ func (s *toolLoopState) recordResult(argsHash, resultContent string) {
 	}
 }
 
+// toolLoopLimits are per-agent thresholds. Zero fields use the package constants.
+type toolLoopLimits struct {
+	sameCallWarning    int
+	sameCallCritical   int
+	sameResultWarning  int
+	sameResultCritical int
+}
+
+func normalizeToolLoopLimits(l toolLoopLimits) toolLoopLimits {
+	if l.sameCallWarning <= 0 {
+		l.sameCallWarning = toolLoopWarningThreshold
+	}
+	if l.sameCallCritical <= 0 {
+		l.sameCallCritical = toolLoopCriticalThreshold
+	}
+	if l.sameResultWarning <= 0 {
+		l.sameResultWarning = sameResultWarning
+	}
+	if l.sameResultCritical <= 0 {
+		l.sameResultCritical = sameResultCritical
+	}
+	return l
+}
+
+func (l *Loop) toolLoopLimits() toolLoopLimits {
+	if l == nil {
+		return normalizeToolLoopLimits(toolLoopLimits{})
+	}
+	return normalizeToolLoopLimits(toolLoopLimits{
+		sameCallWarning:    l.toolLoopSameCallWarning,
+		sameCallCritical:   l.toolLoopSameCallCritical,
+		sameResultWarning:  l.toolLoopSameResultWarning,
+		sameResultCritical: l.toolLoopSameResultCritical,
+	})
+}
+
 // detect checks for repeated no-progress tool calls.
 // Returns level ("warning", "critical", or "") and a human-readable message.
-func (s *toolLoopState) detect(toolName string, argsHash string) (level, message string) {
-	if len(s.history) < toolLoopWarningThreshold {
+// Comparison stays same-name + same-args + same-result. Different args and a
+// different result do not count.
+func (s *toolLoopState) detect(toolName string, argsHash string, limits toolLoopLimits) (level, message string) {
+	limits = normalizeToolLoopLimits(limits)
+	if len(s.history) < limits.sameCallWarning {
 		return "", ""
 	}
 
@@ -125,13 +164,13 @@ func (s *toolLoopState) detect(toolName string, argsHash string) (level, message
 		}
 	}
 
-	if noProgressCount >= toolLoopCriticalThreshold {
+	if noProgressCount >= limits.sameCallCritical {
 		return "critical", fmt.Sprintf(
 			"CRITICAL: %s has been called %d times with identical arguments and results. "+
 				"Stopping to prevent runaway loop.", toolName, noProgressCount)
 	}
 
-	if noProgressCount >= toolLoopWarningThreshold {
+	if noProgressCount >= limits.sameCallWarning {
 		return "warning", fmt.Sprintf(
 			"[System: WARNING — %s has been called %d times with the same arguments and identical results. "+
 				"This is not making progress. Try a completely different approach, use different tools, "+
@@ -244,7 +283,8 @@ func (s *toolLoopState) detectReadOnlyStreak() (level, message string) {
 // detectSameResult checks if the same tool returned identical results multiple
 // times with different arguments. This catches loops where the agent varies
 // args slightly but gets no new information.
-func (s *toolLoopState) detectSameResult(toolName, resultHash string) (level, message string) {
+func (s *toolLoopState) detectSameResult(toolName, resultHash string, limits toolLoopLimits) (level, message string) {
+	limits = normalizeToolLoopLimits(limits)
 	if resultHash == "" {
 		return "", ""
 	}
@@ -254,12 +294,12 @@ func (s *toolLoopState) detectSameResult(toolName, resultHash string) (level, me
 			count++
 		}
 	}
-	if count >= sameResultCritical {
+	if count >= limits.sameResultCritical {
 		return "critical", fmt.Sprintf(
 			"CRITICAL: %s returned identical results %d times (with different arguments). "+
 				"Stopping to prevent runaway loop.", toolName, count)
 	}
-	if count >= sameResultWarning {
+	if count >= limits.sameResultWarning {
 		return "warning", fmt.Sprintf(
 			"[System: WARNING — %s has returned the same result %d times with different arguments. "+
 				"The information is already in your context. Stop re-reading and take action — "+

@@ -825,6 +825,22 @@
       "maxRequestShare": "Max Request Share (0-1)",
       "maxRequestShareTip": "Maximum fraction of the agent context window allowed for the final request sent to the model. If exceeded, the system reduces context before calling the model."
     },
+    "toolBudget": {
+      "title": "Tool call budget",
+      "description": "Per-agent overrides. Leave a field empty to use system defaults. Values above 0 replace the default.",
+      "max_parallel_tool_calls": "Calls per model response",
+      "max_parallel_tool_callsTip": "How many tool calls from one model response run this turn. Extra calls are deferred to the next turn. 0 inherits the default (3). System default 0 runs the whole batch.",
+      "tool_result_max_tokens": "Max tokens per tool result",
+      "tool_result_max_tokensTip": "Trim each tool result to a head and tail before it enters context. Default 1500 matches the 6000-character soft trim. 0 inherits the default.",
+      "tool_loop_same_call_warning": "Same call warning",
+      "tool_loop_same_call_warningTip": "Warn when the same tool, arguments, and result repeat this many times. Default 3.",
+      "tool_loop_same_call_critical": "Same call stop",
+      "tool_loop_same_call_criticalTip": "Stop the run when the same tool, arguments, and result repeat this many times. Default 5.",
+      "tool_loop_same_result_warning": "Same result warning",
+      "tool_loop_same_result_warningTip": "Warn when the same tool returns the same result with different arguments. Default 4.",
+      "tool_loop_same_result_critical": "Same result stop",
+      "tool_loop_same_result_criticalTip": "Stop the run when the same tool returns the same result with different arguments. Default 6."
+    },
     "inboundDebounce": {
       "title": "Inbound Debounce",
       "description": "Override rapid Web Chat and channel message batching for this agent.",

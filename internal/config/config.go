@@ -315,6 +315,18 @@ type AgentDefaults struct {
 	MaxToolIterations   int                   `json:"max_tool_iterations"`
 	ContextWindow       int                   `json:"context_window"`
 	MaxToolCalls        int                   `json:"max_tool_calls,omitempty"` // max total tool calls per run (0 = unlimited, default 25)
+	// MaxParallelToolCalls is how many tool calls from one model response run
+	// this turn. 0 executes the whole batch (legacy). Default 3.
+	MaxParallelToolCalls int `json:"max_parallel_tool_calls,omitempty"`
+	// ToolResultMaxTokens trims each tool result to head+tail before it enters
+	// context. 0 disables per-result trim. Default matches soft trim (~6000 chars).
+	ToolResultMaxTokens int `json:"tool_result_max_tokens,omitempty"`
+	// Same tool + same args + same result. 0 uses 3 / 5.
+	ToolLoopSameCallWarning  int `json:"tool_loop_same_call_warning,omitempty"`
+	ToolLoopSameCallCritical int `json:"tool_loop_same_call_critical,omitempty"`
+	// Same tool + same result + different args. 0 uses 4 / 6.
+	ToolLoopSameResultWarning  int `json:"tool_loop_same_result_warning,omitempty"`
+	ToolLoopSameResultCritical int `json:"tool_loop_same_result_critical,omitempty"`
 	AgentType           string                `json:"agent_type,omitempty"`     // "open" (default) or "predefined"
 	Subagents           *SubagentsConfig      `json:"subagents,omitempty"`
 	Sandbox             *SandboxConfig        `json:"sandbox,omitempty"`
@@ -627,7 +639,13 @@ type AgentSpec struct {
 	Temperature       float64         `json:"temperature,omitempty"`
 	MaxToolIterations int             `json:"max_tool_iterations,omitempty"`
 	ContextWindow     int             `json:"context_window,omitempty"`
-	MaxToolCalls      int             `json:"max_tool_calls,omitempty"` // per-agent override
+	MaxToolCalls               int `json:"max_tool_calls,omitempty"` // per-agent override; 0 inherits default
+	MaxParallelToolCalls       int `json:"max_parallel_tool_calls,omitempty"`
+	ToolResultMaxTokens        int `json:"tool_result_max_tokens,omitempty"`
+	ToolLoopSameCallWarning    int `json:"tool_loop_same_call_warning,omitempty"`
+	ToolLoopSameCallCritical   int `json:"tool_loop_same_call_critical,omitempty"`
+	ToolLoopSameResultWarning  int `json:"tool_loop_same_result_warning,omitempty"`
+	ToolLoopSameResultCritical int `json:"tool_loop_same_result_critical,omitempty"`
 	AgentType         string          `json:"agent_type,omitempty"`     // "open" or "predefined"
 	Skills            []string        `json:"skills,omitempty"`         // nil = all skills allowed
 	Tools             *ToolPolicySpec `json:"tools,omitempty"`          // per-agent tool policy

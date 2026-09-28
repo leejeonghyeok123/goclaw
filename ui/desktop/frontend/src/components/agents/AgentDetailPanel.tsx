@@ -8,6 +8,7 @@ import { ThinkingSection } from './thinking-section'
 import { OrchestrationSection } from './orchestration-section'
 import { ContextPruningSection } from './context-pruning-section'
 import { CompactionSection } from './compaction-section'
+import { ToolBudgetSection } from './tool-budget-section'
 import { SubagentsSection } from './subagents-section'
 import { ToolPolicySection } from './tool-policy-section'
 import { SandboxSection } from './sandbox-section'
@@ -194,6 +195,8 @@ export function AgentDetailPanel({ agent, onSave, onResummon, onClose }: AgentDe
               enabled={s.pruningEnabled} value={s.pruningConfig}
               onToggle={s.setPruningEnabled} onChange={s.setPruningConfig}
             />
+            <hr className="border-border" />
+            <ToolBudgetSection value={s.toolBudget} onChange={s.setToolBudget} />
             <hr className="border-border" />
             <CompactionSection value={s.compactionConfig} onChange={s.setCompactionConfig} />
             <hr className="border-border" />

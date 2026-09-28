@@ -165,7 +165,7 @@ func (l *Loop) processToolResult(
 	action = toolResultContinue
 
 	// Check for tool call loop after recording result.
-	if level, msg := rs.loopDetector.detect(registryName, argsHash); level != "" {
+	if level, msg := rs.loopDetector.detect(registryName, argsHash, l.toolLoopLimits()); level != "" {
 		if level == "critical" {
 			slog.Warn("tool loop critical", "agent", l.id, "tool", registryName, "message", msg)
 			rs.finalContent = "I was unable to complete this task — I got stuck repeatedly calling " + registryName + " without making progress. Please try rephrasing your request."
@@ -179,7 +179,7 @@ func (l *Loop) processToolResult(
 
 	// Check for same tool returning identical results with different args.
 	if rh := hashResult(result.ForLLM); rh != "" {
-		if level, msg := rs.loopDetector.detectSameResult(registryName, rh); level != "" {
+		if level, msg := rs.loopDetector.detectSameResult(registryName, rh, l.toolLoopLimits()); level != "" {
 			if level == "critical" {
 				slog.Warn("tool loop critical: same result",
 					"tool", registryName, "agent", l.id, "run", req.RunID)

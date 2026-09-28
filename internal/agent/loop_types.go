@@ -93,8 +93,14 @@ type Loop struct {
 	modelRegistry    providers.ModelRegistry // resolves per-model context window at run time (nil = use static contextWindow)
 	contextWindow    int
 	maxTokens        int // max output tokens per LLM call (0 = default 8192)
-	maxIterations    int
-	maxToolCalls     int
+	maxIterations              int
+	maxToolCalls               int
+	maxParallelToolCalls       int
+	toolResultMaxTokens        int
+	toolLoopSameCallWarning    int
+	toolLoopSameCallCritical   int
+	toolLoopSameResultWarning  int
+	toolLoopSameResultCritical int
 	workspace        string
 	dataDir          string // global workspace root for team workspace resolution
 	workspaceSharing *store.WorkspaceSharingConfig
@@ -313,6 +319,15 @@ type LoopConfig struct {
 	MaxTokens        int // max output tokens per LLM call (0 = default 8192)
 	MaxIterations    int
 	MaxToolCalls     int
+	// MaxParallelToolCalls caps how many calls from one model response run this turn.
+	// 0 executes the whole batch.
+	MaxParallelToolCalls int
+	// ToolResultMaxTokens trims each tool result before it is appended. 0 disables.
+	ToolResultMaxTokens        int
+	ToolLoopSameCallWarning    int
+	ToolLoopSameCallCritical   int
+	ToolLoopSameResultWarning  int
+	ToolLoopSameResultCritical int
 	Workspace        string
 	DataDir          string // global workspace root for team workspace resolution
 	WorkspaceSharing *store.WorkspaceSharingConfig
@@ -532,8 +547,14 @@ func NewLoop(cfg LoopConfig) *Loop {
 		modelRegistry:          cfg.ModelRegistry,
 		contextWindow:          cfg.ContextWindow,
 		maxTokens:              cfg.MaxTokens,
-		maxIterations:          cfg.MaxIterations,
-		maxToolCalls:           cfg.MaxToolCalls,
+		maxIterations:              cfg.MaxIterations,
+		maxToolCalls:               cfg.MaxToolCalls,
+		maxParallelToolCalls:       cfg.MaxParallelToolCalls,
+		toolResultMaxTokens:        cfg.ToolResultMaxTokens,
+		toolLoopSameCallWarning:    cfg.ToolLoopSameCallWarning,
+		toolLoopSameCallCritical:   cfg.ToolLoopSameCallCritical,
+		toolLoopSameResultWarning:  cfg.ToolLoopSameResultWarning,
+		toolLoopSameResultCritical: cfg.ToolLoopSameResultCritical,
 		workspace:              cfg.Workspace,
 		dataDir:                cfg.DataDir,
 		workspaceSharing:       cfg.WorkspaceSharing,
